@@ -1,13 +1,21 @@
 const fs = require("node:fs");
 const zlib = require("node:zlib");
 
+// create storage directory
+const user = __dirname.split("\\")[2];
+const storageDirectory = `C:/Users/${user}/notifier`;
+if (!fs.existsSync(storageDirectory))
+    fs.mkdirSync(storageDirectory);
+if (!fs.existsSync("./memory-storage"))
+    fs.symlinkSync(storageDirectory, "./memory-storage");
+
 /**
  * Reads from a memory file
  * @param {string} path File path
  * @returns {NonSharedBuffer}
  */
 function read(path) {
-    const fullPath = `./memory/storage/${path}.sat`;
+    const fullPath = `${storageDirectory}/${path}.sat`;
     if (!fs.existsSync(fullPath))
         throw new Error(`No memory file exists at ${path}`);
     const metadata = fs.readFileSync(`${fullPath}.meta`).buffer;
@@ -50,11 +58,11 @@ function readJson(path) {
  * @param {any} data Data to write
  */
 function write(path, data) {
-    const fullPath = `./memory/storage/${path.replaceAll("\\","/")}.sat`;
+    const fullPath = `${storageDirectory}/${path.replaceAll("\\","/")}.sat`;
 
-    var builtPath = ".";
+    var builtPath = storageDirectory;
     fullPath.split("/").forEach((name, idx, array) => {
-        if (idx == 0 || idx == array.length-1) return;
+        if (idx <= 3 || idx == array.length-1) return;
         builtPath = `${builtPath}/${name}`;
         if (!fs.existsSync(builtPath))
             fs.mkdirSync(builtPath);
@@ -121,7 +129,7 @@ function writeJson(path, json) { write(path, JSON.stringify(json)); }
  * @returns {string[]} Paths of all files relative to the given directory
  */
 function fileList(directory="") {
-    const fullPath = `./memory/storage/${directory}`;
+    const fullPath = `${storageDirectory}/${directory}`;
     var list = [];
     if (!fs.existsSync(fullPath))
         return list;
@@ -137,22 +145,53 @@ function fileList(directory="") {
     return list;
 }
 function ensureDirectoryExists(directory) {
-    const fullPath = `./memory/storage/${directory}`;
-    var builtPath = ".";
+    const fullPath = `${storageDirectory}/${directory}`;
+    var builtPath = storageDirectory;
     fullPath.split("/").forEach((name, idx, array) => {
-        if (idx == 0) return;
+        if (idx <= 3 || idx == array.length-1) return;
         builtPath = `${builtPath}/${name}`;
         if (!fs.existsSync(builtPath))
             fs.mkdirSync(builtPath);
     });
 }
-function exists(path) { return fs.existsSync(`./memory/storage/${path}.sat`); }
+function exists(path) { return fs.existsSync(`${storageDirectory}/${path}.sat`); }
 
 function deleteFile(path) {
     if (!exists(path))
         return;
-    fs.rmSync(`./memory/storage/${path}.sat`);
-    fs.rmSync(`./memory/storage/${path}.meta`)
+    fs.rmSync(`${storageDirectory}/${path}.sat`);
+    fs.rmSync(`${storageDirectory}/${path}.meta`);
+}
+
+/**
+ * Writes a memory file without compression
+ * @param {string} path File path (will auto-create directories if necessary)
+ * @param {any} data Data to write
+ */
+function writeRaw(path, data) {
+    const fullPath = `${storageDirectory}/${path.replaceAll("\\","/")}.sat`;
+
+    var builtPath = storageDirectory;
+    fullPath.split("/").forEach((name, idx, array) => {
+        if (idx <= 3 || idx == array.length-1) return;
+        builtPath = `${builtPath}/${name}`;
+        if (!fs.existsSync(builtPath))
+            fs.mkdirSync(builtPath);
+    });
+
+    fs.writeFileSync(fullPath, data);
+}
+/**
+ * Reads from a memory file without decompression
+ * @param {string} path File path
+ * @returns {NonSharedBuffer}
+ */
+function readRaw(path) {
+    const fullPath = `${storageDirectory}/${path}.sat`;
+    if (!fs.existsSync(fullPath))
+        throw new Error(`No memory file exists at ${path}`);
+    const fileData = fs.readFileSync(fullPath);
+    return fileData;
 }
 
 module.exports = {
@@ -163,5 +202,7 @@ module.exports = {
     fileList,
     ensureDirectoryExists,
     exists,
-    deleteFile
+    deleteFile,
+    writeRaw,
+    readRaw
 }

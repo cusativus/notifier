@@ -1,10 +1,17 @@
 const { EventEmitter } = require("node:events");
 const MemorySystem = require("../memory/MemorySystem");
-const { rblxApiKey } = require("../config.json");
 const fs = require("node:fs");
 
 MemorySystem.ensureDirectoryExists("roblox");
 MemorySystem.ensureDirectoryExists("roblox-games");
+
+var rblxApiKey;
+if (!MemorySystem.exists("rblx-api-key")) {
+    rblxApiKey = "";
+    MemorySystem.writeRaw("rblx-api-key", "");
+    console.log("Roblox: set api key in memory storage");
+} else
+    rblxApiKey = MemorySystem.readRaw("rblx-api-key").toString();
 
 /**
  * @param {string|URL|Request} url 
@@ -46,7 +53,7 @@ async function rblxfetch(url, init) {
 
 class Roblox extends EventEmitter {
     async checkApiKey() {
-        if (!fs.existsSync("./roblox/valid-key") || fs.readFileSync("./roblox/valid-key").toString() != rblxApiKey || !MemorySystem.exists("logged-roblox-user-data")) {
+        if (!MemorySystem.exists("roblox-valid-key") || MemorySystem.readRaw("roblox-valid-key").toString() != rblxApiKey || !MemorySystem.exists("logged-roblox-user-data")) {
             console.log("checking roblox api key...");
             const response = await fetch("https://apis.roblox.com/api-keys/v1/introspect", {
                 method: "POST",
@@ -60,7 +67,7 @@ class Roblox extends EventEmitter {
             const data = await response.json();
             if (data.authorizedUserId != undefined) {
                 console.log("valid api key provided");
-                fs.writeFileSync("./roblox/valid-key", rblxApiKey);
+                MemorySystem.writeRaw("roblox-valid-key", rblxApiKey);
                 const userInfo = await rblxfetch(`https://apis.roblox.com/cloud/v2/users/${data.authorizedUserId}`);
                 MemorySystem.writeJson("logged-roblox-user-data", userInfo);
             } else
