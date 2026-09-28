@@ -3,8 +3,7 @@ const { commands, port } = require("../config.json");
 const templates = "./web-page-generator/templates";
 const MemorySystem = require("../memory/MemorySystem");
 
-if (!fs.existsSync("./cache"))
-    fs.mkdirSync("./cache");
+MemorySystem.ensureDirectoryExists("cache");
 
 function generateMainPage() {
     var html = fs.readFileSync(`${templates}/main.html`).toString();
@@ -17,7 +16,7 @@ function generateMainPage() {
         buttons = `${buttons}<button id="${cmd}">${commands[cmd].title}</button><br>`;
     });
     html = html.replace("BODY_INNER", buttons).replaceAll("PORT_HERE", port);
-    fs.writeFileSync("./cache/main.js", js.replace("REGISTER_HERE", register));
+    MemorySystem.writeRaw("cache/main.js", js.replace("REGISTER_HERE", register));
     return html;
 }
 function generateCommandPage(command) {
@@ -34,7 +33,7 @@ function generateCommandPage(command) {
     });
     js = js.replace("INPUT_TABLE_HERE", inputTable);
     html = html.replace("INPUTS", htmlInputs).replaceAll("PORT_HERE", port).replace("CMD_ID", command);
-    fs.writeFileSync(`./cache/command-${command}.js`, js);
+    MemorySystem.writeRaw(`cache/command-${command}.js`, js);
     return html;
 }
 function generateRobloxEventsPage() {
@@ -69,7 +68,7 @@ function generateRobloxEventsPage() {
     })
     js = js.replace("ELEMENTS_LIST", elementsList).replace("TIMES_LIST", timesList).replace("NAMES_LIST", namesList).replace("STATES_LIST", statesList);
     html = html.replaceAll("PORT_HERE", port).replace("BODY_INNER", eventsList).replace("UPDATE_TRACKER", updateList);
-    fs.writeFileSync(`./cache/roblox-events.js`, js);
+    MemorySystem.writeRaw("cache/roblox-events.js", js);
     return html;
 }
 

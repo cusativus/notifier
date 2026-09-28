@@ -27,8 +27,10 @@ function read(path) {
     const fullPath = `${storageDirectory}/${path}.sat`;
     if (!fs.existsSync(fullPath))
         throw new Error(`No memory file exists at ${path}`);
-    const metadata = fs.readFileSync(`${fullPath}.meta`).buffer;
     const fileData = fs.readFileSync(fullPath);
+    if (!fs.existsSync(`${fullPath}.meta`))
+        return fileData;
+    const metadata = fs.readFileSync(`${fullPath}.meta`).buffer;
     try {
         if (metadata.toString() == "c")
             return zlib.brotliDecompressSync(fileData);

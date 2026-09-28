@@ -3,6 +3,7 @@ const express = require("express");
 const notifier = require('node-notifier');
 const WebPageGenerator = require("../web-page-generator/Generator");
 const config = require("../config.json");
+const MemorySystem = require("../memory/MemorySystem");
 
 /** @type {(id: string, body: any) => {status: number, response: any}} */
 var callback = undefined;
@@ -20,10 +21,10 @@ function init() {
         res.send(WebPageGenerator.generateRobloxEventsPage());
     })
     app.get(`/file/*filename`, async (req, res) => {
-        res.sendFile(fs.readFileSync(`./${req.params.filename.join("/")}`));
+        res.sendFile(MemorySystem.read(req.params.filename.join("/")));
     });
     app.get(`/text/*filename`, async (req, res) => {
-        res.send(fs.readFileSync(`./${req.params.filename.join("/")}`));
+        res.send(MemorySystem.read(req.params.filename.join("/")).toString());
     });
     app.post('/cmd', async (req, res) => {
         const id = req.query.id;
