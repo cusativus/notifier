@@ -1,13 +1,22 @@
 const fs = require("node:fs");
 const zlib = require("node:zlib");
+const isAdmin = require("is-admin");
 
 // create storage directory
 const user = __dirname.split("\\")[2];
 const storageDirectory = `C:/Users/${user}/notifier`;
 if (!fs.existsSync(storageDirectory))
     fs.mkdirSync(storageDirectory);
-if (!fs.existsSync("./memory-storage"))
-    fs.symlinkSync(storageDirectory, "./memory-storage");
+if (!fs.existsSync("./memory-storage")) {
+    (async () => {
+        if (await isAdmin.default()) {
+            fs.symlinkSync(storageDirectory, "./memory-storage");
+            console.log("created a shortcut to notifier memory storage");
+        } else {
+            console.log("for easy access to the notifier memory storage, run start.bat as administrator once.");
+        }
+    })();
+}
 
 /**
  * Reads from a memory file
