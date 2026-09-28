@@ -3,6 +3,9 @@ const { commands, port } = require("../config.json");
 const templates = "./web-page-generator/templates";
 const MemorySystem = require("../memory/MemorySystem");
 
+if (!fs.existsSync("./cache"))
+    fs.mkdirSync("./cache");
+
 function generateMainPage() {
     var html = fs.readFileSync(`${templates}/main.html`).toString();
     var js = fs.readFileSync(`${templates}/main.js`).toString()
