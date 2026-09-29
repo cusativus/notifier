@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const zlib = require("node:zlib");
 const isAdmin = require("is-admin");
+const AdmZip = require("adm-zip");
 
 // create storage directory
 const user = __dirname.split("\\")[2];
@@ -205,6 +206,22 @@ function readRaw(path) {
     return fileData;
 }
 
+/**
+ * Extracts and writes the contents of a zip file to the desired path
+ * @param {NonSharedBuffer} zipData 
+ * @param {string} path 
+ */
+function extractZip(zipData, path) {
+    const zip = new AdmZip(zipData);
+    zip.getEntries().forEach((entry, index) => {
+        // construct correct path
+        var split = entry.entryName.split("/");
+        split[0] = "..";
+        var destinationPath = split.join("/");
+        write(destinationPath, entry.getData());
+    });
+}
+
 module.exports = {
     read,
     readJson,
@@ -215,5 +232,6 @@ module.exports = {
     exists,
     deleteFile,
     writeRaw,
-    readRaw
+    readRaw,
+    extractZip
 }
