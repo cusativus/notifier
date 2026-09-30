@@ -208,7 +208,7 @@ class Roblox extends EventEmitter {
                 if (
                     Date.parse(event.startTime) != oldData.startTime ||
                     Date.parse(event.endTime) != oldData.endTime ||
-                    event.displayTitle != oldData.displayTitle
+                    event.displayTitle != oldData.eventName
                 )
                     this.emit("eventChanged", {eventName: event.displayTitle, universeName: data.displayName});
             }
