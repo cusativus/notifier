@@ -1,6 +1,5 @@
 @echo off
 
-cd /d "%~dp0.."
-cd notifier
+cd /d "%~dp0."
 node index.js
 pause
