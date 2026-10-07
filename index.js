@@ -138,9 +138,15 @@ async function start() {
     });
     Roblox.on("eventChanged", event => {
         console.log(`${event.universeName}: ${event.eventName} changed`);
+        var message = `${event.eventName} was changed`;
+        if (event.oldData.startTime != Date.parse(event.data.startTime)) {
+            message = `${message} to start on ${new Date(event.data.startTime).toDateString()}`;
+        } else if (event.oldData.endTime != Date.parse(event.data.endTime)) {
+            message = `${message} to end on ${new Date(event.data.endTime).toDateString()}`;
+        }
         notify({
             title: event.universeName,
-            message: `${event.eventName} was changed`
+            message
         });
     });
     Roblox.on("error", err => {

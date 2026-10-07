@@ -210,7 +210,7 @@ class Roblox extends EventEmitter {
                     Date.parse(event.endTime) != oldData.endTime ||
                     event.displayTitle != oldData.eventName
                 )
-                    this.emit("eventChanged", {eventName: event.displayTitle, universeName: data.displayName});
+                    this.emit("eventChanged", {eventName: event.displayTitle, universeName: data.displayName, oldData, newData: data});
             }
             MemorySystem.writeJson(`roblox/${universeId}/${event.id}`, {
                 startTime: Date.parse(event.startTime),
